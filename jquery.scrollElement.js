@@ -6,98 +6,160 @@
 * http://www.gnu.org/licenses/gpl.html
 **/
 
-(function($) {  
-	$.fn.scrollElement = function(options) {
-		var defaults = {  }
-		var options = $.extend(defaults, options);
-		return this.each(function() {
-			var limit = $("#scrollmove > table").size(),
-				delay = 5000,
-				timeoutDelay = 5000,
-				current = -1,
-				next = 0,
-				isForced = false,
-				isPaused = false,
-				isAfterForced = false,
-				rotate,
-				timeout,
-				timeoutStatus,
-				currentSlide,
-				nextSlide;
-			
-			function createTimer(){
-				rotate = setInterval(autoSwapPhoto,delay);
-			}
-			
-			function stopTimer(){
-					clearInterval(rotate);
-					if(typeof(timeout) !== 'undefined'){
-						clearTimeout(timeout);
-					}
-			}
-			
-			function delayTimer(){
-				stopTimer();
-				if(!isPaused){
-					timeout = setTimeout(createTimer, timeoutDelay);
+(function($){
+	var config = {
+		prev : ".scrollprev",
+		next : ".scrollnext",
+		container : ".scrollcontainer",
+		mode : "page",
+		pagesize : 3,
+		displayed : null,
+		disabledclass : "disabled",
+	};
+	var el, calc, scrollcontainer, scrolllist;
+	var methods = {
+		init : function(settings) {
+			if (settings) { $.extend(config, settings); }
+			return this.each(function(){
+				var objdata;
+				
+				el = $(this);
+				scrollcontainer = el.find(config.container);
+				scrolllist = scrollcontainer.find("td");
+				if(config.displayed === null){
+					config.displayed = config.pagesize;	
 				}
-			}
-			
-			function forceSwapPhoto(event){
-				delayTimer();
-				var obj = $(event.currentTarget)
-				if(obj.attr("id") === "scrollnext"){
-					swapPhoto("up");	
-				} else if(obj.attr("id") === "scrollprev"){
-					swapPhoto("down");	
-				}
-				return false;
-			}
-			
-			function autoSwapPhoto() {
-				swapPhoto("up");
-			}
-						
-			
-			function toggleTimer(event){
-				if(isPaused){
-					createTimer();
-					isPaused = false;	
-				} else {
-					stopTimer();
-					isPaused = true;
-				}
-				$(event.currentTarget).blur();
-				return false;
-			}
 
-			function swapPhoto(dir) {
-				var postContainer = $("#scrollmove > tbody > tr");
-				var allPosts = $("#scrollmove > tbody > tr > td");
+				el.data("scroll", {
+					prevbutton : el.find(config.prev),
+					nextbutton : el.find(config.next),
+					container : scrollcontainer,
+					currentelement : 0,
+					elementlist : scrolllist,
+					elementcontainer : scrollcontainer.find("tr"),
+					limit : scrolllist.length - 1,
+					elementpositions : [],
+					pages : 0,
+					pageindex : 0,
+					pagesize : config.pagesize,
+					displayed : config.displayed,
+					disabledclass : config.disabledclass
+				});
 				
-				if(dir === "up"){
-					$("#scrollmove").animate({"left":"-330px"}, function(){
-						$(allPosts[0]).appendTo(postContainer);
-						$("#scrollmove").css("left",0);
-					});
-				} else if(dir === "down"){
-					$(allPosts).last().prependTo(postContainer);
-					$("#scrollmove").css("left","-330px");
-					$("#scrollmove").animate({"left":0});
+				objdata = el.data("scroll");
+
+				objdata.container.scrollLeft(0);
+				objdata.container.css({"overflow":"hidden"});
+				objdata.prevbutton.addClass(objdata.disabledclass);
+				
+				methods._calcPosition(false, el);
+				
+				switch(config.mode){
+					case "page":
+						methods._calcPages(el);
+						if(objdata.pages <= 1){
+							objdata.nextbutton.addClass(objdata.disabledclass);
+						}
+						
+						objdata.prevbutton.bind("click", {dir : "prev", scope : el}, methods._pageScroll);
+						objdata.nextbutton.bind("click", {dir : "next", scope : el}, methods._pageScroll);
+						break;
+					case "infinite":
+						objdata.prevbutton.removeClass(objdata.disabledclass);
+						objdata.prevbutton.bind("click", {dir : "prev", scope : el}, methods._infiniteScroll);
+						objdata.nextbutton.bind("click", {dir : "next", scope : el}, methods._infiniteScroll);
+						break;
+				}
+			});
+		},
+		_pageScroll : function(event){
+			var obj = event.data.scope,
+				objdata = obj.data("scroll");
+
+			if(event.data.dir === "prev" && objdata.pageindex > 0){
+				objdata.pageindex -= 1;
+				if(objdata.nextbutton.hasClass(objdata.disabledclass)){
+					objdata.nextbutton.removeClass(objdata.disabledclass);
 				}
 				
-				if(isForced) {
-					$("#rotate_list a").unbind("click");
-					$("#rotate_list a").bind("click", forceSwapPhoto);	
-					isForced = false;
-					isAfterForced = true;
+				if(objdata.pageindex === 0){
+					objdata.prevbutton.addClass(objdata.disabledclass);	
+				}
+			} else if(event.data.dir === "next" && objdata.pageindex < objdata.pages) {
+				objdata.pageindex += 1;
+				objdata.prevbutton.removeClass(objdata.disabledclass);
+				
+				if(objdata.pageindex === objdata.pages){
+					objdata.nextbutton.addClass(objdata.disabledclass);	
 				}
 			}
 			
-			createTimer();
-			$("#scroller-new").css("overflow","hidden");
-			$("#scrollprev").click(forceSwapPhoto);
-			$("#scrollnext").click(forceSwapPhoto);
-		});
-	}
+			calc = objdata.elementpositions[objdata.pageindex * objdata.pagesize];
+		
+			objdata.container.stop().animate({
+				scrollLeft : calc
+			}, "fast");
+			
+			return false;
+		},
+		_infiniteScroll : function(event){
+			var obj = event.data.scope,
+				objdata = obj.data("scroll");
+
+			calc = objdata.elementpositions[1];
+			if(event.data.dir === "prev"){
+				objdata.elementlist.eq(-1).prependTo(objdata.elementcontainer);
+				objdata.container.scrollLeft(calc);
+				objdata.container.stop().animate({
+					scrollLeft : 0	
+				}, "fast", function(){
+					methods._calcPosition(true, obj);	
+				});
+			} else if(event.data.dir === "next") {
+				objdata.container.stop().animate({
+					scrollLeft : calc
+				}, "fast", function(){
+					
+					console.log(objdata.pages);
+					
+					
+					objdata.elementlist.eq(0).appendTo(objdata.elementcontainer);
+					objdata.container.scrollLeft(0);
+					methods._calcPosition(true, obj);
+				});			
+			}
+			
+			return false;
+		},
+		_calcPages : function(scope){
+			var obj = scope,
+				objdata = obj.data("scroll");
+
+			objdata.pages = Math.max(1, Math.ceil((objdata.limit - (objdata.displayed - objdata.pagesize)) / objdata.pagesize));
+			
+			objdata.pageindex = Math.max(0, objdata.pageindex);
+			objdata.pageindex = Math.min(objdata.pages, objdata.pageindex);
+		},
+		_calcPosition : function(recalc, scope){
+			var obj = scope,
+				objdata = obj.data("scroll");
+
+			if(recalc){
+				objdata.elementlist = objdata.container.find("td");
+			}
+			objdata.elementlist.each(function(i){
+				objdata.elementpositions[i] = Math.ceil($(this).position().left);
+			});	
+		}			
+	};
+	
+	$.fn.scrollElement = function(method) {
+		if (methods[method]) {
+			return methods[method].apply(this, Array.prototype.slice.call( arguments, 1 ));
+		} else if (typeof method === 'object' || ! method) {
+			return methods.init.apply(this, arguments);
+		} else {
+			$.error('Method ' +  method + ' does not exist on scrollElement');
+		}    
+	};
 })(jQuery);

@@ -1,0 +1,97 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Demo</title>
+
+<style type="text/css">
+	.scroll{overflow:hidden;}
+	.scrollnav{float:left;}
+	.scrollcontainer{width:710px; overflow:auto; float:left; position:relative;}
+		.scrollcontainer td{padding:0 2px;}
+		
+	.disabled{color:#f00;}
+</style>
+
+</head>
+
+<body>
+	<h1>Demo - Infinite</h1>
+	<div class="scroll" id="test1">
+		<div class="scrollnav"><a href="#" class="scrollprev">PREVIOUS</a></div>
+		<div class="scrollcontainer">
+			<table cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td><img src="http://placehold.it/200x200/&text=zero" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=1" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=2" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=3" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=4" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=5" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=6" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=7" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=8" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=9" height="200" width="200" alt="" /></td>
+				</tr>
+			</table>
+		</div>				
+		<div class="scrollnav"><a href="#" class="scrollnext">NEXT</a></div>
+	</div>
+	
+	<h1>Demo - Single</h1>
+	<div class="scroll" id="test2">
+		<div class="scrollnav"><a href="#" class="scrollprev">PREVIOUS</a></div>
+		<div class="scrollcontainer">
+			<table cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td><img src="http://placehold.it/200x200/&text=zero" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=1" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=2" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=3" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=4" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=5" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=6" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=7" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=8" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=9" height="200" width="200" alt="" /></td>
+				</tr>
+			</table>
+		</div>				
+		<div class="scrollnav"><a href="#" class="scrollnext">NEXT</a></div>
+	</div>
+	
+	<h1>Demo - Page</h1>
+	<div class="scroll" id="test3">
+		<div class="scrollnav"><a href="#" class="scrollprev">PREVIOUS</a></div>
+		<div class="scrollcontainer">
+			<table cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<td><img src="http://placehold.it/200x200/&text=zero" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=1" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=2" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=3" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=4" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=5" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=6" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=7" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=8" height="200" width="200" alt="" /></td>
+					<td><img src="http://placehold.it/200x200/&text=9" height="200" width="200" alt="" /></td>
+				</tr>
+			</table>
+		</div>				
+		<div class="scrollnav"><a href="#" class="scrollnext">NEXT</a></div>
+	</div>
+	
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script type="text/javascript" src="jquery.scrollElement.js"></script>
+
+<script type="text/javascript">
+	$(function(){
+		$("#test1").scrollElement({mode:"infinite", infinitecount:2});	
+		$("#test2").scrollElement({mode:"page", pagesize:1, displayed:3});
+		$("#test3").scrollElement({mode:"page", pagesize:3});	
+	});
+</script>
+
+</body>
+</html>
