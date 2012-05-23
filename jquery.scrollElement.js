@@ -119,10 +119,6 @@
 				objdata.container.stop().animate({
 					scrollLeft : calc
 				}, "fast", function(){
-					
-					console.log(objdata.pages);
-					
-					
 					objdata.elementlist.eq(0).appendTo(objdata.elementcontainer);
 					objdata.container.scrollLeft(0);
 					methods._calcPosition(true, obj);
